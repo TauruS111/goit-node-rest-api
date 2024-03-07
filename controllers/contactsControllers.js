@@ -53,9 +53,6 @@ export const createContact = async (req, res, next) => {
 
 export const updateContact = async (req, res, next) => {
   const { id } = req.params;
-  if (Object.values(req.body).length === 0) {
-    res.status(400).json({ message: "Body must have at least one field" });
-  }
   try {
     const updatedContact = await Contact.findByIdAndUpdate(id, req.body, {
       new: true,
@@ -72,9 +69,13 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   const { id } = req.params;
   try {
-    const updateStatus = await Contact.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const updateStatus = await Contact.findByIdAndUpdate(
+      id,
+      { favorite },
+      {
+        new: true,
+      }
+    );
     res.status(200).json(updateStatus);
   } catch (error) {
     next(error);
