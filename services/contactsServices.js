@@ -1,8 +1,8 @@
-const fs = require("node:fs/promises");
-const path = require("node:path");
-const crypto = require("node:crypto");
+import fs from "fs/promises";
+import path from "path";
+import crypto from "crypto";
 
-const contactsPat = path.join(__dirname, "contacts.json");
+const contactsPat = path.resolve("db", "contacts.json");
 
 async function readContacts() {
   const data = await fs.readFile(contactsPat, { encoding: "utf-8" });
@@ -40,4 +40,25 @@ async function addContact(name, email, phone) {
   return newContact;
 }
 
-module.exports = { listContacts, getContactById, removeContact, addContact };
+async function updateContact(id, data) {
+  const contacts = await readContacts();
+  const index = contacts.findIndex((contact) => contact.id === id);
+  try {
+    if (index === -1) {
+      return null;
+    }
+    contacts[index] = { id, ...data };
+    await fs.writeFile(contactsPat, JSON.stringify(contacts, null, 2));
+    return contacts[index];
+  } catch (error) {
+    return console.log(error.message);
+  }
+}
+
+export {
+  listContacts,
+  getContactById,
+  removeContact,
+  addContact,
+  updateContact,
+};
