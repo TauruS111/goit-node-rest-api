@@ -2,7 +2,12 @@ import { User } from "../models/user.js";
 import HttpError from "../helpers/HttpError.js";
 import bcrypt, { hash } from "bcrypt";
 import jwt from "jsonwebtoken";
+import gravatar from "gravatar";
+import path from "path";
+import fs from "fs";
 
+const avatarPath = path.resolve("public", "avatars");
+console.log("avatarPath", avatarPath);
 const { SECRETKEY } = process.env;
 
 export const register = async (req, res, next) => {
@@ -12,11 +17,16 @@ export const register = async (req, res, next) => {
     if (user) {
       throw HttpError(409, "Email already in use");
     }
+    const avatarURL = gravatar.url(email);
     const hashPassword = await bcrypt.hash(password, 10);
-    const newUser = await User.create({ ...req.body, password: hashPassword });
-    res
-      .status(201)
-      .json({ subscription: newUser.subscription, email: newUser.email });
+    const newUser = await User.create({
+      ...req.body,
+      password: hashPassword,
+      avatarURL,
+    });
+    res.status(201).json({
+      user: { subscription: newUser.subscription, email: newUser.email },
+    });
   } catch (error) {
     next(error);
   }
@@ -55,4 +65,23 @@ export const getCurrent = async (req, res, next) => {
   const { email, subscription } = req.user;
 
   res.status(200).json({ subscription, email });
+};
+
+export const uploadAvatar = async (req, res, next) => {
+  const { _id } = req.user;
+  const { filename, path: oldPath } = req.file;
+  console.log("req.file", req.file);
+
+  const newPath = path.join(avatarPath, filename);
+
+  fs.rename(oldPath, newPath);
+  console.log("newPath", newPath);
+
+  const avatarURL = path.join("avatars", filename);
+  console.log("avatarURL", avatarURL);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+
+  res.status(200).json({
+    avatarURL,
+  });
 };
