@@ -16,7 +16,9 @@ export const register = async (req, res, next) => {
     const newUser = await User.create({ ...req.body, password: hashPassword });
     res
       .status(201)
-      .json({ subscription: newUser.subscription, email: newUser.email });
+      .json({
+        user: { subscription: newUser.subscription, email: newUser.email },
+      });
   } catch (error) {
     next(error);
   }
