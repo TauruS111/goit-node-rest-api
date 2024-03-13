@@ -4,7 +4,8 @@ import bcrypt, { hash } from "bcrypt";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import path from "path";
-import fs from "fs";
+import fs from "fs/promises";
+import Jimp from "jimp";
 
 const avatarPath = path.resolve("public", "avatars");
 console.log("avatarPath", avatarPath);
@@ -70,15 +71,15 @@ export const getCurrent = async (req, res, next) => {
 export const uploadAvatar = async (req, res, next) => {
   const { _id } = req.user;
   const { filename, path: oldPath } = req.file;
-  console.log("req.file", req.file);
 
   const newPath = path.join(avatarPath, filename);
 
   fs.rename(oldPath, newPath);
-  console.log("newPath", newPath);
+  const image = await Jimp.read(newPath);
+  await image.resize(250, 250).writeAsync(newPath);
 
   const avatarURL = path.join("avatars", filename);
-  console.log("avatarURL", avatarURL);
+
   await User.findByIdAndUpdate(_id, { avatarURL });
 
   res.status(200).json({
