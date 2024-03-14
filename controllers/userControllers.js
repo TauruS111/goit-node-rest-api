@@ -8,7 +8,6 @@ import fs from "fs/promises";
 import Jimp from "jimp";
 
 const avatarPath = path.resolve("public", "avatars");
-console.log("avatarPath", avatarPath);
 const { SECRETKEY } = process.env;
 
 export const register = async (req, res, next) => {

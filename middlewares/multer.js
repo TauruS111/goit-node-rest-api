@@ -8,7 +8,6 @@ const multerConfig = multer.diskStorage({
   filename: (req, file, cb) => {
     const { email } = req.user;
     const filename = `${email}_${file.originalname}`;
-    console.log(filename);
     cb(null, filename);
   },
 });
