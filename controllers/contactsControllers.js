@@ -77,6 +77,7 @@ export const updateContact = async (req, res, next) => {
 export const updateStatusContact = async (req, res, next) => {
   const { id } = req.params;
   const { _id: owner } = req.user;
+  const { favorite } = req.body;
   try {
     const updateStatus = await Contact.findByIdAndUpdate(
       { _id: id, owner },
