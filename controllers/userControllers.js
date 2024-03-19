@@ -1,11 +1,12 @@
+import fs from "fs/promises";
 import { User } from "../models/user.js";
 import HttpError from "../helpers/HttpError.js";
 import bcrypt, { hash } from "bcrypt";
 import jwt from "jsonwebtoken";
 import gravatar from "gravatar";
 import path from "path";
-import fs from "fs/promises";
 import Jimp from "jimp";
+import sendEmail from "../helpers/sendEmail.js";
 
 const avatarPath = path.resolve("public", "avatars");
 const { SECRETKEY } = process.env;
