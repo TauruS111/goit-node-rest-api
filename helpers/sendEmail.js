@@ -14,7 +14,7 @@ const transport = {
 const transporter = nodemailer.createTransport(transport);
 
 const sendEmail = (data) => {
-  const email = { ...data, from: USERNAMEMAILTRAP };
+  const email = { ...data, from: "nereci6319@azduan.com " };
   return transporter.sendMail(email);
 };
 
