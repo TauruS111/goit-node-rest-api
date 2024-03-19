@@ -7,6 +7,9 @@ import gravatar from "gravatar";
 import path from "path";
 import Jimp from "jimp";
 import sendEmail from "../helpers/sendEmail.js";
+import { nanoid } from "nanoid";
+import { Verify } from "crypto";
+import { json } from "express";
 
 const avatarPath = path.resolve("public", "avatars");
 const { SECRETKEY } = process.env;
@@ -20,11 +23,23 @@ export const register = async (req, res, next) => {
     }
     const avatarURL = gravatar.url(email);
     const hashPassword = await bcrypt.hash(password, 10);
+
+    const verificationToken = nanoid();
     const newUser = await User.create({
       ...req.body,
       password: hashPassword,
       avatarURL,
+      verificationToken,
     });
+
+    const verifyEmail = {
+      to: email,
+      subject: "verify Email",
+      html: `<a href = "http://localhost:3000/api/users/verify/${verificationToken}">click to verify email</a>`,
+    };
+
+    await sendEmail(verifyEmail);
+
     res.status(201).json({
       user: { subscription: newUser.subscription, email: newUser.email },
     });
@@ -84,5 +99,43 @@ export const uploadAvatar = async (req, res, next) => {
 
   res.status(200).json({
     avatarURL,
+  });
+};
+
+export const verify = async (req, res, next) => {
+  const { verifyCode } = req.params;
+
+  const user = await User.findOne({ verificationToken: verifyCode });
+  if (!user) {
+    throw HttpError(404, "User not found");
+  }
+  await User.findByIdAndUpdate(user._id, {
+    verify: true,
+    verificationToken: "",
+  });
+  res.status(200).json({
+    message: "Verification successful",
+  });
+};
+
+export const sentVerifyMail = async (req, res, next) => {
+  const { email } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw HttpError(400, "User not found");
+  }
+  if (user.verify) {
+    throw HttpError(400, "Verification has already been passed");
+  }
+  const verifyEmail = {
+    to: email,
+    subject: "duplicate verify code",
+    html: `<a href = "http://localhost:3000/api/users/verify/${user.verificationToken}">click to verify email</a>`,
+  };
+
+  await sendEmail(verifyEmail);
+
+  res.status(200).json({
+    message: "Verification email sent",
   });
 };

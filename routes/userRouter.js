@@ -6,8 +6,14 @@ import {
   logout,
   getCurrent,
   uploadAvatar,
+  verify,
+  sentVerifyMail,
 } from "../controllers/userControllers.js";
-import { registerSchema, loginSchema } from "../schemas/userSchemas.js";
+import {
+  registerSchema,
+  loginSchema,
+  verifySchema,
+} from "../schemas/userSchemas.js";
 import { authenticate } from "../middlewares/authenticate.js";
 import { upload } from "../middlewares/multer.js";
 
@@ -23,5 +29,7 @@ userRouter.patch(
   upload.single("avatar"),
   uploadAvatar
 );
+userRouter.get("/verify/:verifyCode", verify);
+userRouter.post("/verify", validateBody(verifySchema), sentVerifyMail);
 
 export default userRouter;
