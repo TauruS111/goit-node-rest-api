@@ -34,7 +34,7 @@ export const register = async (req, res, next) => {
 
     const verifyEmail = {
       to: email,
-      subject: "verify Email",
+      subject: "Verify Email",
       html: `<a href = "http://localhost:3000/api/users/verify/${verificationToken}">click to verify email</a>`,
     };
 
@@ -129,7 +129,7 @@ export const sentVerifyMail = async (req, res, next) => {
   }
   const verifyEmail = {
     to: email,
-    subject: "duplicate verify code",
+    subject: "Duplicate verify code",
     html: `<a href = "http://localhost:3000/api/users/verify/${user.verificationToken}">click to verify email</a>`,
   };
 
