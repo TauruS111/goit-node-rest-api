@@ -103,19 +103,22 @@ export const uploadAvatar = async (req, res, next) => {
 };
 
 export const verify = async (req, res, next) => {
-  const { verifyCode } = req.params;
+  try {
+    const { verifyCode } = req.params;
+    const user = await User.findOneAndUpdate(
+      { verificationToken: verifyCode },
+      { verify: true, verificationToken: "" },
+      { new: true }
+    );
 
-  const user = await User.findOne({ verificationToken: verifyCode });
-  if (!user) {
-    throw HttpError(404, "User not found");
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    res.status(200).json({ message: "Verification successful" });
+  } catch (error) {
+    next(error);
   }
-  await User.findByIdAndUpdate(user._id, {
-    verify: true,
-    verificationToken: "",
-  });
-  res.status(200).json({
-    message: "Verification successful",
-  });
 };
 
 export const sentVerifyMail = async (req, res, next) => {

@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 
-const { USERNAMEMAILTRAP, PASSPASSWORDMAILTRAP } = process.env;
+const { USERNAMEMAILTRAP, PASSPASSWORDMAILTRAP, EMAIL } = process.env;
 
 const transport = {
   host: "sandbox.smtp.mailtrap.io",
@@ -14,7 +14,7 @@ const transport = {
 const transporter = nodemailer.createTransport(transport);
 
 const sendEmail = (data) => {
-  const email = { ...data, from: "nereci6319@azduan.com " };
+  const email = { ...data, from: EMAIL };
   return transporter.sendMail(email);
 };
 
